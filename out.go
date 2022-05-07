@@ -26,6 +26,19 @@ func Put(request PutRequest, manager Github, inputDir string) (*PutResponse, err
 		return nil, fmt.Errorf("failed to unmarshal version from file: %s", err)
 	}
 
+	var versionForUpdate Version
+	versionForUpdate.PR = version.PR
+	versionForUpdate.Commit = version.Commit
+
+	// Override versionForUpdate if set.
+	if (request.Params.OverrideVersionCommit != "" && request.Params.OverrideVersionPR == "") || (request.Params.OverrideVersionPR != "" && request.Params.OverrideVersionCommit == "") {
+		return nil, fmt.Errorf("`override_version_pr` and `override_version_commit` must both be set if either is set")
+	}
+	if request.Params.OverrideVersionPR != "" {
+		versionForUpdate.PR = request.Params.OverrideVersionPR
+		versionForUpdate.Commit = request.Params.OverrideVersionCommit
+	}
+
 	// Metadata available after a GET step.
 	var metadata Metadata
 	content, err = ioutil.ReadFile(filepath.Join(path, "metadata.json"))
@@ -49,14 +62,14 @@ func Put(request PutRequest, manager Github, inputDir string) (*PutResponse, err
 			description = string(content)
 		}
 
-		if err := manager.UpdateCommitStatus(version.Commit, p.BaseContext, safeExpandEnv(p.Context), p.Status, safeExpandEnv(p.TargetURL), description); err != nil {
+		if err := manager.UpdateCommitStatus(versionForUpdate.Commit, p.BaseContext, safeExpandEnv(p.Context), p.Status, safeExpandEnv(p.TargetURL), description); err != nil {
 			return nil, fmt.Errorf("failed to set status: %s", err)
 		}
 	}
 
 	// Delete previous comments if specified
 	if request.Params.DeletePreviousComments {
-		err = manager.DeletePreviousComments(version.PR, request.Params.BodyMatcherForDelete)
+		err = manager.DeletePreviousComments(versionForUpdate.PR, request.Params.BodyMatcherForDelete)
 		if err != nil {
 			return nil, fmt.Errorf("failed to delete previous comments: %s", err)
 		}
@@ -64,7 +77,7 @@ func Put(request PutRequest, manager Github, inputDir string) (*PutResponse, err
 
 	// Set comment if specified
 	if p := request.Params; p.Comment != "" {
-		err = manager.PostComment(version.PR, safeExpandEnv(p.Comment))
+		err = manager.PostComment(versionForUpdate.PR, safeExpandEnv(p.Comment))
 		if err != nil {
 			return nil, fmt.Errorf("failed to post comment: %s", err)
 		}
@@ -78,7 +91,7 @@ func Put(request PutRequest, manager Github, inputDir string) (*PutResponse, err
 		}
 		comment := string(content)
 		if comment != "" {
-			err = manager.PostComment(version.PR, safeExpandEnv(comment))
+			err = manager.PostComment(versionForUpdate.PR, safeExpandEnv(comment))
 			if err != nil {
 				return nil, fmt.Errorf("failed to post comment: %s", err)
 			}
@@ -116,6 +129,8 @@ type PutParameters struct {
 	Comment                string `json:"comment"`
 	DeletePreviousComments bool   `json:"delete_previous_comments"`
 	BodyMatcherForDelete   string `json:"body_matcher_for_delete"`
+	OverrideVersionPR      string `json:"override_version_pr"`
+	OverrideVersionCommit  string `json:"override_version_commit"`
 }
 
 // Validate the put parameters.

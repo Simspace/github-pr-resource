@@ -126,6 +126,8 @@ empty commit to the PR*.
 | `description_file`         | No       | `my-output/description.txt`          | Path to file containing the description status to add to the pull request                                                                                     |
 | `delete_previous_comments` | No       | `true`                               | Boolean. Previous comments made on the pull request by this resource will be deleted before making the new comment. Useful for removing outdated information. |
 | `body_matcher_for_delete` | No       | `Concourse CI`                               | Regex. When using `delete_previous_comments`, filter comments to delete by this regex. Useful when more than one pipeline comments on the same PR. |
+| `override_version_pr` | No       | `Concourse CI`                               | String. The PR number of PR to update status and/or comment on. Must be set if `override_version_commit` is set. Useful when you want to update status/comment on a PR different than the one you have checked out. |
+| `override_version_commit` | No       | `Concourse CI`                               | String. The HEAD SHA of PR to update status and/or comment on. Must be set if `override_version_pr` is set. Useful when you want to update status/comment on a PR different than the one you have checked out. |
 
 Note that `comment`, `comment_file` and `target_url` will all expand environment variables, so in the examples above `$ATC_EXTERNAL_URL` will be replaced by the public URL of the Concourse ATCs.
 See https://concourse-ci.org/implementing-resource-types.html#resource-metadata for more details about metadata that is available via environment variables.
