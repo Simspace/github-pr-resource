@@ -125,6 +125,7 @@ empty commit to the PR*.
 | `description`              | No       | `Concourse CI build failed`          | The description status on the specified pull request.                                                                                                         |
 | `description_file`         | No       | `my-output/description.txt`          | Path to file containing the description status to add to the pull request                                                                                     |
 | `delete_previous_comments` | No       | `true`                               | Boolean. Previous comments made on the pull request by this resource will be deleted before making the new comment. Useful for removing outdated information. |
+| `body_matcher_for_delete` | No       | `Concourse CI`                               | Regex. When using `delete_previous_comments`, filter comments to delete by this regex. Useful when more than one pipeline comments on the same PR. |
 
 Note that `comment`, `comment_file` and `target_url` will all expand environment variables, so in the examples above `$ATC_EXTERNAL_URL` will be replaced by the public URL of the Concourse ATCs.
 See https://concourse-ci.org/implementing-resource-types.html#resource-metadata for more details about metadata that is available via environment variables.

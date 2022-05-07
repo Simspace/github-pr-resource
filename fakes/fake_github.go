@@ -106,13 +106,13 @@ type FakeGithub struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *FakeGithub) DeletePreviousComments(arg1 string) error {
+func (fake *FakeGithub) DeletePreviousComments(arg1, arg2 string) error {
 	fake.deletePreviousCommentsMutex.Lock()
 	ret, specificReturn := fake.deletePreviousCommentsReturnsOnCall[len(fake.deletePreviousCommentsArgsForCall)]
 	fake.deletePreviousCommentsArgsForCall = append(fake.deletePreviousCommentsArgsForCall, struct {
 		arg1 string
 	}{arg1})
-	fake.recordInvocation("DeletePreviousComments", []interface{}{arg1})
+	fake.recordInvocation("DeletePreviousComments", []interface{}{arg1, arg2})
 	fake.deletePreviousCommentsMutex.Unlock()
 	if fake.DeletePreviousCommentsStub != nil {
 		return fake.DeletePreviousCommentsStub(arg1)
